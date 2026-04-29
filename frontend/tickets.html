@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMSI - Tickets Log</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="SMSI Logo">
+        </div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn">Home</a>
+            <a href="tickets.html" class="btn active-page">Tickets Log</a>
+            <a href="management.html" class="btn">Management</a>
+            <a href="technician.html" class="btn">Technician</a>
+            <a href="response.html" class="btn">Response</a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <h1>Tickets Log</h1>
+        
+        <button class="create-btn">Create Ticket</button>
+
+        <table class="ticket-table" id="ticketTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                    <th>Technician</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>Network Down</td>
+                    <td>Open</td>
+                    <td>John</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // 1. I-check kung naay gi-save nga update sa browser memory (localStorage)
+            let dataFromResponse = localStorage.getItem("newTicketUpdate");
+
+            if (dataFromResponse) {
+                // 2. I-convert ang data gikan sa string balik sa object
+                let ticket = JSON.parse(dataFromResponse);
+
+                // 3. Pangitaon ang lawas sa table (tbody)
+                let tableBody = document.querySelector("#ticketTable tbody");
+
+                // 4. Maghimo og bag-ong row
+                let newRow = tableBody.insertRow();
+
+                // 5. I-display ang data sa bag-ong mga column
+                newRow.innerHTML = `
+                    <td>${ticket.id}</td>
+                    <td>${ticket.issue}</td>
+                    <td>${ticket.status}</td>
+                    <td>${ticket.tech}</td>
+                `;
+
+                // OPTIONAL: Kung gusto nimo mawa ang data inig refresh, 
+                // i-uncomment (tangtanga ang //) sa line sa ubos:
+                // localStorage.removeItem("newTicketUpdate");
+            }
+        }
+    </script>
+
+</body>
+</html>
