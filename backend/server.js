@@ -10,17 +10,17 @@ app.use(cors());
 app.use(express.json());
 
 // 1. I-SERVE ANG FRONTEND FILES
-// Gikuha ang '../' aron diretso sa 'frontend' folder
+// Kini ang mupakita sa imong CSS, Images, ug JS files gikan sa frontend folder
 app.use(express.static(path.join(__dirname, 'frontend')));
 
-// Koneksyon sa Database gamit ang Environment Variables (Aiven)
+// 2. KONEKSYON SA DATABASE (Aiven Cloud)
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD, 
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
-  ssl: { rejectUnauthorized: false } // Importante ni para sa Aiven connection
+  ssl: { rejectUnauthorized: false } // Importante ni para sa Aiven connection security
 });
 
 db.connect(err => {
@@ -33,12 +33,13 @@ db.connect(err => {
 
 // --- ROUTES ---
 
-// Kini ang mupakita sa imong Login Page inig abli sa link
+// 3. I-SERVE ANG INDEX.HTML SA ROOT PAGE
+// Mao ni ang mupuli sa "WOMAN Backend is working"
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// 2. GET ALL TICKETS
+// 4. GET ALL TICKETS
 app.get('/api/tickets', (req, res) => {
   const sql = "SELECT * FROM tickets ORDER BY id DESC";
   db.query(sql, (err, result) => {
@@ -47,7 +48,7 @@ app.get('/api/tickets', (req, res) => {
   });
 });
 
-// 3. CREATE TICKET
+// 5. CREATE TICKET
 app.post('/api/tickets', (req, res) => {
   const { issue, technician, priority } = req.body;
   const sql = "INSERT INTO tickets (issue, status, technician, priority) VALUES (?, 'Submitted', ?, ?)";
@@ -59,7 +60,7 @@ app.post('/api/tickets', (req, res) => {
   });
 });
 
-// 4. UPDATE TICKET STATUS
+// 6. UPDATE TICKET STATUS
 app.post('/api/responses', (req, res) => {
   const { ticketId } = req.body;
   const sql = "UPDATE tickets SET status = 'Resolved' WHERE id = ?";
@@ -69,7 +70,7 @@ app.post('/api/responses', (req, res) => {
   });
 });
 
-// 5. LOGIN VERIFICATION
+// 7. LOGIN VERIFICATION (Verify Access Code)
 app.post('/api/verify', (req, res) => {
   const { code } = req.body;
   const sql = "SELECT * FROM users WHERE password = ?";
@@ -83,12 +84,12 @@ app.post('/api/verify', (req, res) => {
   });
 });
 
-// Para dili mag-error sa "Page Not Found" inig refresh
+// Para dili mag-error sa "Page Not Found" inig refresh sa ubang pages
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Port settings para sa Render
+// Port settings para sa Render (Dapat 0.0.0.0 ang host)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 WOMAN API running on port ${PORT}`);
