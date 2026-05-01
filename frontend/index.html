@@ -29,7 +29,7 @@
             <input type="text" id="userInput" placeholder="Enter Code (e.g. SMSI-2026)" 
                 style="padding: 10px; width: 250px; border-radius: 5px; border: 1px solid #ccc;">
             
-            <button type="button" class="btn" onclick="checkData()">Submit</button>
+            <button type="button" class="btn" onclick="handleLogin()">Submit</button>
         </div>
         
         <p id="errorBox" style="margin-top: 15px; font-weight: bold; font-size: 14px;"></p>
@@ -37,8 +37,11 @@
         <p style="margin-top: 40px; color: #666;">Solutions Management Systems Inc. - 2026</p>
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+
     <script>
-        async function checkData() {
+        async function handleLogin() {
             var input = document.getElementById("userInput").value;
             var errorBox = document.getElementById("errorBox");
             var nav = document.getElementById("navLinks");
@@ -49,28 +52,19 @@
                 return;
             }
 
+            // Diri nato tawgon ang verifyAccessCode gikan sa js/api.js
             try {
-                // CALLING THE BACKEND API RUNNING ON NODE.JS
-                const response = await fetch('http://localhost:5000/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: input })
-                });
-
-                const data = await response.json();
+                const data = await verifyAccessCode(input);
 
                 if (data.success) {
                     errorBox.style.color = "green";
                     errorBox.innerHTML = "✅ " + data.message;
                     
-                    // UNLOCK THE NAVIGATION MENU
                     nav.style.pointerEvents = "auto"; 
                     nav.style.opacity = "1";          
 
-                    // SAVE SESSION TO MAINTAIN ACCESS ON REFRESH
                     sessionStorage.setItem("accessPermitted", "true");
                     
-                    // REDIRECT TO THE MANAGEMENT PAGE AFTER 1 SECOND
                     setTimeout(function() {
                         window.location.href = "management.html"; 
                     }, 1000);
@@ -78,23 +72,22 @@
                     errorBox.style.color = "red";
                     errorBox.innerHTML = "❌ " + data.message;
                 }
-            } catch (error) {
-                // FALLBACK ERROR IF THE API SERVER IS OFFLINE
+            } catch (err) {
                 errorBox.style.color = "red";
-                errorBox.innerHTML = "❌ Connection Error: Please ensure the 'Node.js API' is running on the server.";
+                errorBox.innerHTML = "❌ Error: Cannot connect to server. Check your Terminal/Backend.";
             }
         }
 
-        // CHECK ACCESS STATUS ON PAGE LOAD
         window.onload = function() {
             if (sessionStorage.getItem("accessPermitted") === "true") {
                 var nav = document.getElementById("navLinks");
-                nav.style.pointerEvents = "auto";
-                nav.style.opacity = "1";
+                if(nav) {
+                    nav.style.pointerEvents = "auto";
+                    nav.style.opacity = "1";
+                }
             }
         }
     </script>
-
 </body>
 </html>
 

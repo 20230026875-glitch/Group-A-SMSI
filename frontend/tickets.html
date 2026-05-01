@@ -48,20 +48,20 @@
 
     <script>
         window.onload = function() {
-            // 1. I-check kung naay gi-save nga update sa browser memory (localStorage)
+    
             let dataFromResponse = localStorage.getItem("newTicketUpdate");
 
             if (dataFromResponse) {
-                // 2. I-convert ang data gikan sa string balik sa object
+                
                 let ticket = JSON.parse(dataFromResponse);
 
-                // 3. Pangitaon ang lawas sa table (tbody)
+                
                 let tableBody = document.querySelector("#ticketTable tbody");
 
-                // 4. Maghimo og bag-ong row
+                
                 let newRow = tableBody.insertRow();
 
-                // 5. I-display ang data sa bag-ong mga column
+                
                 newRow.innerHTML = `
                     <td>${ticket.id}</td>
                     <td>${ticket.issue}</td>
@@ -69,9 +69,7 @@
                     <td>${ticket.tech}</td>
                 `;
 
-                // OPTIONAL: Kung gusto nimo mawa ang data inig refresh, 
-                // i-uncomment (tangtanga ang //) sa line sa ubos:
-                // localStorage.removeItem("newTicketUpdate");
+                
             }
         }
     </script>

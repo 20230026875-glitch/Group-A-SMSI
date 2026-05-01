@@ -41,7 +41,6 @@
             var responseInput = document.getElementById("responseText").value;
             var feedback = document.getElementById("feedback");
 
-            // Listahan sa mga valid nga IDs (Siguroha nga naa ni diri)
             var existingTickets = ["001", "002", "003", "22"]; 
 
             if (idInput === "" || responseInput === "") {
@@ -49,7 +48,6 @@
                 feedback.innerHTML = "⚠️ Please fill in all fields.";
             } 
             else if (existingTickets.includes(idInput)) {
-                // 1. I-save ang data sa LocalStorage para makuha sa tickets.html
                 let ticketUpdate = {
                     id: idInput,
                     issue: responseInput,
@@ -62,7 +60,6 @@
                 feedback.style.color = "green";
                 feedback.innerHTML = "✅ Success! Response sent to Tickets Log.";
 
-                // I-clear ang fields
                 document.getElementById("ticketID").value = "";
                 document.getElementById("responseText").value = "";
             } 

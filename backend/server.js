@@ -4,10 +4,11 @@ const mysql = require('mysql2');
 
 const app = express();
 
-app.use(cors());
+// Gi-enable ang CORS aron makakonektar ang imong website sa server
+app.use(cors()); 
 app.use(express.json());
 
-// ✅ MySQL connection
+// Koneksyon sa Database
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -23,13 +24,13 @@ db.connect(err => {
   }
 });
 
-// ✅ Test route
+// Test Route para masiguro nga nag-andar ang server
 app.get('/', (req, res) => {
   res.send('Backend is working');
 });
 
-// ✅ UPDATED VERIFY (uses MySQL now)
-app.post('/verify', (req, res) => {
+// Route para sa Login Verification
+app.post('/api/verify', (req, res) => {
   const { code } = req.body;
 
   const sql = "SELECT * FROM users WHERE password = ?";
@@ -40,15 +41,16 @@ app.post('/verify', (req, res) => {
     }
 
     if (result.length > 0) {
+      // Kung sakto ang code
       res.json({ success: true, message: "Welcome to SMSI System!" });
     } else {
+      // Kung sayop ang code
       res.json({ success: false, message: "Invalid Access Code!" });
     }
   });
 });
 
-// ✅ Run server
+// Port settings
 app.listen(5000, () => {
   console.log("API running at http://localhost:5000");
 });
-

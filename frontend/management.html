@@ -68,17 +68,14 @@
 
     <script>
         window.onload = function() {
-            // 1. Security Check: Kinahanglan ni-login sa index.html
             if (sessionStorage.getItem("accessPermitted") !== "true") {
                 alert("⚠️ Please enter the Access Code first.");
                 window.location.href = "index.html";
                 return;
             }
 
-            // 2. Kuhaon ang login name (e.g., "gar" o "admin123")
             var loggedInUser = localStorage.getItem("loggedInUser");
 
-            // 3. I-update ang Technician name sa table
             if (loggedInUser) {
                 document.getElementById("techName1").innerText = loggedInUser;
             } else {
