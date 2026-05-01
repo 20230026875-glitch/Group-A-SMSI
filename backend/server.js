@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
-const path = require('path'); // Kinahanglan ni para sa files
+const path = require('path');
 
 const app = express();
 
@@ -10,31 +10,32 @@ app.use(cors());
 app.use(express.json());
 
 // 1. I-SERVE ANG FRONTEND FILES
-// Kini ang mopakita sa imong index.html imbes nga "Not Found"
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Gikuha ang '../' aron diretso sa 'frontend' folder
+app.use(express.static(path.join(__dirname, 'frontend')));
 
-// Koneksyon sa Database (Gigamitan og Environment Variables)
+// Koneksyon sa Database gamit ang Environment Variables (Aiven)
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "S3rv3r!Lock$992", 
-  database: process.env.DB_NAME || "woman_db",
-  port: process.env.DB_PORT || 3306
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD, 
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
+  ssl: { rejectUnauthorized: false } // Importante ni para sa Aiven connection
 });
 
 db.connect(err => {
   if (err) {
     console.log("❌ Database connection failed:", err);
   } else {
-    console.log("✅ Connected to MySQL Database");
+    console.log("✅ Connected to MySQL Database (Aiven)");
   }
 });
 
 // --- ROUTES ---
 
-// I-serve ang index.html sa root route
+// Kini ang mupakita sa imong Login Page inig abli sa link
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // 2. GET ALL TICKETS
@@ -82,7 +83,12 @@ app.post('/api/verify', (req, res) => {
   });
 });
 
-// Port settings
+// Para dili mag-error sa "Page Not Found" inig refresh
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+// Port settings para sa Render
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 WOMAN API running on port ${PORT}`);
