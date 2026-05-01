@@ -33,8 +33,8 @@
                     <option value="Company C">Company C</option>
                 </select>
             </p>
-            <p>Total Tickets: <strong>25</strong></p>
-            <p>Resolved: <strong>18</strong></p>
+            <p>Total Tickets: <strong id="totalTicketsCount">0</strong></p>
+            <p>Resolved: <strong id="resolvedTicketsCount">0</strong></p>
         </div>
 
         <hr style="border: 0.5px solid #999; margin-bottom: 20px;">
@@ -49,40 +49,69 @@
                     <th>Technician</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="managementTableBody">
                 <tr>
-                    <td>001</td>
-                    <td>Network Down</td>
-                    <td>Open</td>
-                    <td id="techName1">Loading...</td>
-                </tr>
-                <tr>
-                    <td>002</td>
-                    <td>Software Update</td>
-                    <td>Resolved</td>
-                    <td id="techName2">Jane</td>
+                    <td colspan="4" style="text-align: center;">Loading real-time data...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+
     <script>
-        window.onload = function() {
+        window.onload = async function() {
+            // 1. Security Check
             if (sessionStorage.getItem("accessPermitted") !== "true") {
                 alert("⚠️ Please enter the Access Code first.");
                 window.location.href = "index.html";
                 return;
             }
 
-            var loggedInUser = localStorage.getItem("loggedInUser");
+            // 2. Load Data gikan sa API
+            await refreshManagementDashboard();
+        }
 
-            if (loggedInUser) {
-                document.getElementById("techName1").innerText = loggedInUser;
-            } else {
-                document.getElementById("techName1").innerText = "Not Assigned";
+        async function refreshManagementDashboard() {
+            const tableBody = document.getElementById("managementTableBody");
+            const totalLabel = document.getElementById("totalTicketsCount");
+            const resolvedLabel = document.getElementById("resolvedTicketsCount");
+
+            try {
+                // Gamiton ang function sa api.js
+                const tickets = await fetchTickets(); 
+
+                if (tickets && tickets.length > 0) {
+                    tableBody.innerHTML = ""; // Limpyohan ang sample data
+                    
+                    let resolvedCount = 0;
+
+                    tickets.forEach(ticket => {
+                        if (ticket.status === 'Resolved') resolvedCount++;
+
+                        const row = `
+                            <tr>
+                                <td>${ticket.id}</td>
+                                <td>${ticket.issue}</td>
+                                <td><span class="status-${ticket.status.toLowerCase()}">${ticket.status}</span></td>
+                                <td>${ticket.technician || "Not Assigned"}</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+
+                    totalLabel.innerText = tickets.length;
+                    resolvedLabel.innerText = resolvedCount;
+
+                } else {
+                    tableBody.innerHTML = "<tr><td colspan='4' style='text-align: center;'>No tickets found in database.</td></tr>";
+                }
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+                tableBody.innerHTML = "<tr><td colspan='4' style='text-align: center; color: red;'>Cannot connect to server.</td></tr>";
             }
         }
     </script>
-
 </body>
 </html>

@@ -25,50 +25,62 @@
         <h1>Response Panel</h1>
         
         <div class="form-container">
-            <input type="text" id="ticketID" placeholder="Ticket ID (e.g., 001)" style="display: block; margin-bottom: 10px; width: 250px; padding: 5px;">
+            <input type="text" id="ticketID" placeholder="Ticket ID (e.g., 1)" style="display: block; margin-bottom: 10px; width: 250px; padding: 5px;">
             
             <textarea id="responseText" placeholder="Write response..." rows="4" style="display: block; margin-bottom: 10px; width: 400px; padding: 5px;"></textarea>
             
-            <button type="button" class="create-btn" onclick="validateResponse()">Submit</button>
+            <button type="button" id="submitBtn" class="create-btn" onclick="handleResponse()">Submit</button>
             
             <p id="feedback" style="margin-top: 15px; font-weight: bold;"></p>
         </div>
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+
     <script>
-        function validateResponse() {
-            var idInput = document.getElementById("ticketID").value;
-            var responseInput = document.getElementById("responseText").value;
-            var feedback = document.getElementById("feedback");
+        async function handleResponse() {
+            const idInput = document.getElementById("ticketID").value;
+            const responseInput = document.getElementById("responseText").value;
+            const feedback = document.getElementById("feedback");
+            const btn = document.getElementById("submitBtn");
 
-            var existingTickets = ["001", "002", "003", "22"]; 
-
+            // 1. Basic Validation
             if (idInput === "" || responseInput === "") {
                 feedback.style.color = "orange";
                 feedback.innerHTML = "⚠️ Please fill in all fields.";
-            } 
-            else if (existingTickets.includes(idInput)) {
-                let ticketUpdate = {
-                    id: idInput,
-                    issue: responseInput,
-                    status: "Responded",
-                    tech: "Admin"
-                };
+                return;
+            }
 
-                localStorage.setItem("newTicketUpdate", JSON.stringify(ticketUpdate));
+            // Usbon ang hitsura sa button samtang nag-process
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+            feedback.innerHTML = "Connecting to server...";
 
-                feedback.style.color = "green";
-                feedback.innerHTML = "✅ Success! Response sent to Tickets Log.";
+            try {
+                // 2. I-call ang function gikan sa api.js (Diri na ang tinuod nga database update)
+                const result = await submitResponse(idInput, responseInput);
 
-                document.getElementById("ticketID").value = "";
-                document.getElementById("responseText").value = "";
-            } 
-            else {
+                if (result && result.success) {
+                    feedback.style.color = "green";
+                    feedback.innerHTML = "✅ Success! Ticket status updated to Responded.";
+                    
+                    // Clear inputs
+                    document.getElementById("ticketID").value = "";
+                    document.getElementById("responseText").value = "";
+                } else {
+                    feedback.style.color = "red";
+                    feedback.innerHTML = "❌ Error: " + (result.message || "Ticket ID not found.");
+                }
+            } catch (error) {
+                console.error("Submission error:", error);
                 feedback.style.color = "red";
-                feedback.innerHTML = "❌ Error: Ticket ID does not exist.";
+                feedback.innerHTML = "❌ Connection failed. Check if server is running.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit";
             }
         }
     </script>
-
 </body>
 </html>

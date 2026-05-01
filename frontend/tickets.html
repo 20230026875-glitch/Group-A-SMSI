@@ -35,43 +35,48 @@
                     <th>Technician</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>001</td>
-                    <td>Network Down</td>
-                    <td>Open</td>
-                    <td>John</td>
-                </tr>
-            </tbody>
+            <tbody id="ticketTableBody">
+                </tbody>
         </table>
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+
     <script>
-        window.onload = function() {
-    
-            let dataFromResponse = localStorage.getItem("newTicketUpdate");
-
-            if (dataFromResponse) {
+        async function loadTickets() {
+            const tableBody = document.getElementById("ticketTableBody");
+            
+            try {
+                // Tawgon ang fetchTickets gikan sa imong api.js
+                const tickets = await fetchTickets(); 
                 
-                let ticket = JSON.parse(dataFromResponse);
+                // Limpyohan ang table para dili magdoble
+                tableBody.innerHTML = ""; 
 
-                
-                let tableBody = document.querySelector("#ticketTable tbody");
+                if (tickets.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='4'>No tickets found in database.</td></tr>";
+                    return;
+                }
 
-                
-                let newRow = tableBody.insertRow();
-
-                
-                newRow.innerHTML = `
-                    <td>${ticket.id}</td>
-                    <td>${ticket.issue}</td>
-                    <td>${ticket.status}</td>
-                    <td>${ticket.tech}</td>
-                `;
-
-                
+                // I-loop ang matag ticket gikan sa database
+                tickets.forEach(ticket => {
+                    let row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${ticket.id || ticket.ticket_id}</td>
+                        <td>${ticket.issue}</td>
+                        <td>${ticket.status}</td>
+                        <td>${ticket.technician || ticket.tech_name || 'N/A'}</td>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error:", error);
+                tableBody.innerHTML = "<tr><td colspan='4' style='color:red;'>❌ Error connecting to server.</td></tr>";
             }
         }
+
+        // Modagan ni inig abli sa page
+        window.onload = loadTickets;
     </script>
 
 </body>
